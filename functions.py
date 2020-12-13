@@ -2,6 +2,12 @@ from enum import Enum
 import numpy as np
 from scipy.stats import norm
 from functools import partial
+from deap import algorithms
+from deap import base
+from deap import benchmarks
+from deap.benchmarks.tools import diversity, convergence, hypervolume
+from deap import creator
+from deap import tools
 
 class FUN(Enum):
     ID      = partial(lambda x: x)
