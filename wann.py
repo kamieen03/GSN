@@ -13,7 +13,7 @@ creator.create("Individual", Net, fitness=creator.Fitness)
 toolbox = base.Toolbox()
 
 # Net initialization params
-NET_IN, NET_OUT = 2, 1
+NET_IN, NET_OUT = 4, 1
 
 toolbox.register("individual", creator.Individual, NET_IN, NET_OUT)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -77,15 +77,15 @@ def main():
         ind.fitness.values = fit
 
     for i in range(MAX_ITER):
-        offspring = toolbox.select(pop, SELECT_K)
-        offspring = random.choices(offspring, k=POP_SIZE)
+        offspring = toolbox.select(pop, SELECT_K)           # tu się klonują
+        offspring = random.choices(offspring, k=POP_SIZE)   # chyba    
         offspring = list(map(toolbox.clone, offspring))
 
         for mutant in offspring:
             toolbox.mutate(mutant, MUT_WEIGHTS)
             del mutant.fitness.values
 
-        fitnesses = [toolbox.evaluate(ind) for ind in pop]
+        fitnesses = [toolbox.evaluate(ind, env) for ind in pop]
         for ind, fit in zip(pop, fitnesses):
             ind.fitness.values = fit
 

@@ -12,3 +12,6 @@ class Node:
         inp = W * np.sum([child.val for child in self.children])
         self.val = self.fun(inp)
         return self.val
+    
+    def __repr__(self):
+        return f'{self.id}: {self.fun} | {self.val}'

@@ -1,4 +1,4 @@
-from functions import FUN
+from functions import FUN, FUN_LIST
 from numpy import array as arr
 import random
 from functools import reduce
@@ -11,7 +11,7 @@ class Net:
         self.nodes = []
         self.layers = []  # list of lists of nodes
         self.inputs = [Node(None, self.get_node_id()) for _ in range(n_inputs)]
-        self.outputs = [Node(FUN.ID, self.get_node_id()) for _ in range(n_outputs)]
+        self.outputs = [Node(FUN['ID'], self.get_node_id()) for _ in range(n_outputs)]
         for o in self.outputs:
             o.children = random.sample(self.inputs, k=2)
 
@@ -26,8 +26,11 @@ class Net:
         return arr([out(W) for out in self.outputs])
 
     def change_activation(self):
-        node = random.choice(self.nodes)
-        node.fun = random.choice(list(FUN))
+        try:
+            node = random.choice(self.nodes)
+            node.fun = random.choice(FUN_LIST)
+        except:
+            return
 
     def insert_node(self):
         # get random node in network and number of it's layer
@@ -40,7 +43,7 @@ class Net:
 
         # get one of it's children and produce new node between parent and child
         child = random.choice(parent.children)
-        node = Node(random.choice(list(FUN)), self.get_node_id())
+        node = Node(random.choice(FUN_LIST), self.get_node_id())
         node.children.append(child)
         parent.children.remove(child)
         parent.children.append(node)
@@ -48,7 +51,7 @@ class Net:
         # insert newly created node to list of nodes and add it to proper layer
         # if parent and child were in consecutive layer, then we have to create a new layerr between them
         self.nodes.append(node)
-        if child in self.layers[lparent - 1]:
+        if lparent == 0 or child in self.layers[lparent - 1]:
             self.layers.insert(lparent, [])
             self.layers[lparent].append(node)
         else:
