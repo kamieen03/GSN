@@ -1,10 +1,12 @@
 import random
 import gym
+import numpy as np
 from net import Net
 from mutations import Mutation
 from deap import base
 from deap import creator
 from deap import tools
+from visual import draw_pop
 
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
@@ -63,10 +65,18 @@ toolbox.register("select", tools.selNSGA2)
 
 
 def main():
-    MAX_ITER = 100
-    POP_SIZE = 10
+    MAX_GEN = 10
+    POP_SIZE = 8
     SELECT_K = int(POP_SIZE * 0.8)
     MUT_WEIGHTS = [1, 1, 1]
+
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values)
+    stats.register("max", np.max, axis=0)
+    stats.register("min", np.min, axis=0)
+    stats.register("avg", np.mean, axis=0)
+
+    logbook = tools.Logbook()
+    logbook.header = "gen", "max", "min", "avg"
 
     env = gym.make('CartPole-v1')
 
@@ -76,21 +86,34 @@ def main():
     for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-    for i in range(MAX_ITER):
-        offspring = toolbox.select(pop, SELECT_K)           # tu się klonują
-        offspring = random.choices(offspring, k=POP_SIZE)   # chyba    
+    record = stats.compile(pop)
+    logbook.record(gen=0, evals=POP_SIZE, **record)
+
+    for gen in range(1, MAX_GEN):
+        offspring = toolbox.select(pop, SELECT_K)
+        offspring = [offspring[random.randint(0, len(offspring)-1)] for _ in range(POP_SIZE)]
         offspring = list(map(toolbox.clone, offspring))
 
         for mutant in offspring:
             toolbox.mutate(mutant, MUT_WEIGHTS)
             del mutant.fitness.values
 
-        fitnesses = [toolbox.evaluate(ind, env) for ind in pop]
-        for ind, fit in zip(pop, fitnesses):
+        fitnesses = [toolbox.evaluate(ind, env) for ind in offspring]
+        for ind, fit in zip(offspring, fitnesses):
             ind.fitness.values = fit
 
         pop[:] = offspring
+
+        draw_pop(pop)
+        record = stats.compile(pop)
+        logbook.record(gen=gen, evals=POP_SIZE, **record)
+        print(logbook.stream)
+
+    best_ind = tools.selBest(pop, 1)[0]
+    print(f"\nBest individual is {best_ind.fitness.values}")
+
     env.close()
+
 
 
 if __name__ == "__main__":
