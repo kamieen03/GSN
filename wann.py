@@ -14,7 +14,7 @@ from functions import FUN
 
 
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3'][1]
+ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -22,11 +22,15 @@ try:
 except:
     NET_OUT = env.action_space.shape[0]
 env.close(); del env
+out_fun = {'CartPole-v1': FUN['ID'],
+           'BipedalWalker-v3': FUN['TANH'],
+           'Pendulum-v0': FUN['2TANH']
+           }[ENV_NAME]
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
 creator.create("Individual", Net, fitness=creator.Fitness)
 toolbox = base.Toolbox()
-toolbox.register("individual", creator.Individual, NET_IN, NET_OUT, FUN['TANH'])
+toolbox.register("individual", creator.Individual, NET_IN, NET_OUT, out_fun)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 
@@ -79,8 +83,8 @@ toolbox.register("select", tools.selNSGA2)
 
 
 def main():
-    MAX_GEN = 3
-    POP_SIZE = 12
+    MAX_GEN = 30
+    POP_SIZE = 40
     SELECT_K = int(POP_SIZE * 0.8)
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values[1])

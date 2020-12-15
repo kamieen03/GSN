@@ -18,6 +18,9 @@ def step(x):
 def sigmoid(x):
     return (np.tanh(x/2)+1)/2
 
+def tanh2(x):
+    return 2 * np.tanh(x)
+
 
 FUN = {
     'ID'      : id,
@@ -29,7 +32,8 @@ FUN = {
     'RELU'    : relu,
     'STEP'    : step,
     'GAUSS'   : norm.pdf,
-    'SIGMOID' : sigmoid
+    'SIGMOID' : sigmoid,
+    '2TANH'   : tanh2
     }
 
 FUN_LIST = list(FUN.values())
