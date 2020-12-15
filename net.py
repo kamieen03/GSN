@@ -1,13 +1,15 @@
 from functions import FUN, FUN_LIST
 from numpy import array as arr
 import random
-from functools import reduce
 from node import Node
+import numpy as np
+from matplotlib import pyplot as plt
 
 
 class Net:
     def __init__(self, n_inputs, n_outputs):
         self.curr_node_id = 0
+        self.best_w = None
         self.nodes = []
         self.layers = []  # list of lists of nodes
         self.inputs = [Node(None, self.get_node_id()) for _ in range(n_inputs)]
@@ -26,11 +28,11 @@ class Net:
         return arr([out(W) for out in self.outputs])
 
     def change_activation(self):
-        try:
+        if len(self.nodes) > 0:
             node = random.choice(self.nodes)
             node.fun = random.choice(FUN_LIST)
-        except:
-            return
+        return self
+
 
     def insert_node(self):
         # get random node in network and number of it's layer
@@ -56,6 +58,7 @@ class Net:
             self.layers[lparent].append(node)
         else:
             self.layers[lparent - 1].append(node)
+        return self
 
     def add_connection(self):
         # draw random layers according to numbers of nodes in them
@@ -79,6 +82,7 @@ class Net:
             n2 = random.choice(self.layers[l2 - 1])
         if n1 not in n2.children:
             n2.children.append(n1)
+        return self
 
     def get_all_nodes(self):
         return self.inputs + self.nodes + self.outputs
@@ -90,4 +94,24 @@ class Net:
         id_ = self.curr_node_id
         self.curr_node_id += 1
         return id_
+
+    def test_range(self, env):
+        print("Testing range of weights...")
+        xs, ys = [], []
+        for w in np.arange(-3.0,3.0,0.1):
+            total_reward = 0
+            observation = env.reset()
+            for i in range(1000):
+                action = np.argmax(self(w, observation))
+                observation, reward, done, info = env.step(action)
+                total_reward += reward
+                if done:
+                    break
+            xs.append(w)
+            ys.append(total_reward)
+        plt.plot(xs,ys)
+        plt.xlabel("Weight")
+        plt.ylabel("Score")
+        plt.show()
+
 

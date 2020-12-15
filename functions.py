@@ -1,26 +1,35 @@
-from enum import Enum
 import numpy as np
 from scipy.stats import norm
-from functools import partial
-from deap import algorithms
-from deap import base
-from deap import benchmarks
-from deap.benchmarks.tools import diversity, convergence, hypervolume
-from deap import creator
-from deap import tools
-from copy import deepcopy
+
+def id(x):
+    return x
+
+def inv(x):
+    if abs(x) < 1e-6:
+        return 0
+    return np.reciprocal(x),
+
+def relu(x):
+    return max(0,x)
+
+def step(x):
+    return (x>0) * 1
+
+def sigmoid(x):
+    return (np.tanh(x/2)+1)/2
+
 
 FUN = {
-    'ID'      : lambda x: x,
+    'ID'      : id,
     'SIN'     : np.sin,
     'COS'     : np.cos,
     'ABS'     : np.abs,
-    'INV'     : np.reciprocal,
+    'INV'     : inv,
     'TANH'    : np.tanh,
-    'RELU'    : lambda x: max(0, x),
-    'STEP'    : lambda x: (x>0) * 1,
+    'RELU'    : relu,
+    'STEP'    : step,
     'GAUSS'   : norm.pdf,
-    'SIGMOID' : lambda x: 1/(1+np.exp(-x))
+    'SIGMOID' : sigmoid
     }
 
 FUN_LIST = list(FUN.values())

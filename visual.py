@@ -2,7 +2,8 @@ import networkx as nx
 from net import Net
 import matplotlib.pyplot as plt
 import math
-
+import numpy as np
+import gym
 
 def draw_pop(nets):
     rows = 4
@@ -24,3 +25,16 @@ def convert2nx(net):
             g.add_edge(child.id, node.id)
 
     return g
+
+
+def showcase(net, env):
+    observation = env.reset()
+    for _ in range(1000):
+        env.render()
+        if type(env.action_space) == gym.spaces.discrete.Discrete:
+            action = np.argmax(net(net.best_w, observation))
+        else:
+            action = net(net.best_w, observation)
+        observation, reward, done, info = env.step(action)
+        if done: break
+    env.close()
