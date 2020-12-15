@@ -7,7 +7,7 @@ def id(x):
 def inv(x):
     if abs(x) < 1e-6:
         return 0
-    return np.reciprocal(x),
+    return np.reciprocal(x)
 
 def relu(x):
     return max(0,x)
