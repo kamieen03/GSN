@@ -1,9 +1,14 @@
+#!/usr/bin/env python3
 from functions import FUN, FUN_LIST
 from numpy import array as arr
 import random
 from node import Node
 import numpy as np
 from matplotlib import pyplot as plt
+from visual import showcase
+import pickle
+import sys
+import gym
 
 
 class Net:
@@ -113,5 +118,25 @@ class Net:
         plt.xlabel("Weight")
         plt.ylabel("Score")
         plt.show()
+
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'walker':
+        ENV_NAME = "BipedalWalker-v3"
+    elif sys.argv[1] == "cartpole":
+        ENV_NAME = "CartPole-v1"
+    else:
+        print("Usage: py net.py (walker|cartpole)")
+    env = gym.make(ENV_NAME)
+    NET_IN = env.observation_space.shape[0]
+    try:
+        NET_OUT = env.action_space.n
+    except:
+        NET_OUT = env.action_space.shape[0]
+    with open(f"models/best_net_{ENV_NAME}.pickle", "rb") as f:
+        n = pickle.load(f)
+    showcase(n, env)
+    env.close()
 
 

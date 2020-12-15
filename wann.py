@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import random
 import gym
 import numpy as np
@@ -8,6 +9,7 @@ from deap import creator
 from deap import tools
 from visual import draw_pop, showcase
 from multiprocessing import Pool
+import pickle
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
 creator.create("Individual", Net, fitness=creator.Fitness)
@@ -99,12 +101,13 @@ def main():
         print(logbook.stream)
 
     best_ind = tools.selBest(pop, 1)[0]
-    print(best_ind)
+    with open(f'models/best_net_{ENV_NAME}.pickle', 'wb') as f:
+        pickle.dump(best_ind, f)
     print(f"\nBest individual is {best_ind.fitness.values}")
     env = gym.make(ENV_NAME)
     showcase(best_ind, env)
-    best_ind.test_range(env)
     env.close()
+    best_ind.test_range(env)
 
 
 

@@ -1,5 +1,4 @@
 import networkx as nx
-from net import Net
 import matplotlib.pyplot as plt
 import math
 import numpy as np
