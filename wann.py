@@ -10,17 +10,23 @@ from deap import tools
 from visual import draw_pop, showcase
 from multiprocessing import Pool
 import pickle
+from functions import FUN
+
+
+# Net initialization params
+ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3'][1]
+env = gym.make(ENV_NAME)
+NET_IN = env.observation_space.shape[0]
+try:
+    NET_OUT = env.action_space.n
+except:
+    NET_OUT = env.action_space.shape[0]
+env.close(); del env
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
 creator.create("Individual", Net, fitness=creator.Fitness)
-
 toolbox = base.Toolbox()
-
-# Net initialization params
-NET_IN, NET_OUT = 4, 2
-ENV_NAME = 'CartPole-v1'
-
-toolbox.register("individual", creator.Individual, NET_IN, NET_OUT)
+toolbox.register("individual", creator.Individual, NET_IN, NET_OUT, FUN['TANH'])
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 
@@ -36,16 +42,21 @@ def mutate(individual):
         raise Exception("Nie wybrano żadnej mutacji")
 
 
+def out2action(out, env):
+    if type(env.action_space) == gym.spaces.discrete.Discrete:
+        action = np.argmax(out)
+    return out
+
 def evaluate(individual):
     total_fit = 0
-    max_fit = 0
+    max_fit = -np.inf
     env = gym.make(ENV_NAME)
     weights=[-2, -1, -0.5, 0.5, 1, 2]
     for w in weights:
         total_reward = 0
         observation = env.reset()
         for i in range(1000):
-            action = np.argmax(individual(w, observation))
+            action = out2action(individual(w, observation), env)
             observation, reward, done, info = env.step(action)
             total_reward += reward
             if done:
@@ -68,8 +79,8 @@ toolbox.register("select", tools.selNSGA2)
 
 
 def main():
-    MAX_GEN = 30
-    POP_SIZE = 8
+    MAX_GEN = 3
+    POP_SIZE = 12
     SELECT_K = int(POP_SIZE * 0.8)
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values[1])

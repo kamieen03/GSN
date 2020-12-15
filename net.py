@@ -12,13 +12,13 @@ import gym
 
 
 class Net:
-    def __init__(self, n_inputs, n_outputs):
+    def __init__(self, n_inputs, n_outputs, out_op=FUN['ID']):
         self.curr_node_id = 0
         self.best_w = None
         self.nodes = []
         self.layers = []  # list of lists of nodes
         self.inputs = [Node(None, self.get_node_id()) for _ in range(n_inputs)]
-        self.outputs = [Node(FUN['ID'], self.get_node_id()) for _ in range(n_outputs)]
+        self.outputs = [Node(out_op, self.get_node_id()) for _ in range(n_outputs)]
         for o in self.outputs:
             o.children = random.sample(self.inputs, k=2)
 
@@ -107,7 +107,10 @@ class Net:
             total_reward = 0
             observation = env.reset()
             for i in range(1000):
-                action = np.argmax(self(w, observation))
+                if type(env.action_space) == gym.spaces.discrete.Discrete:
+                    action = np.argmax(self(w, observation))
+                else:
+                    action = self(w, observation)
                 observation, reward, done, info = env.step(action)
                 total_reward += reward
                 if done:
