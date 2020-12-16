@@ -98,6 +98,7 @@ def choose_best(pop):
             best_avg = iavg
     return best_ind
 
+
 def serialize(ind):
     n = Net(NET_IN, NET_OUT, out_fun)
     n.best_w = ind.best_w
@@ -107,6 +108,26 @@ def serialize(ind):
     n.outputs = ind.outputs
     with open(f'models/best_net_{ENV_NAME}.pickle', 'wb') as f:
         pickle.dump(n, f)
+
+
+def plot_evo(logbook):
+    gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
+    fig, axs = plt.subplots(2)
+    axs[0].plot(gen, max_[:, 0])
+    axs[0].plot(gen, avg[:, 0])
+    axs[0].plot(gen, min_[:, 0])
+    axs[0].set_xlabel("Generation")
+    axs[0].set_ylabel("Fitness")
+    axs[0].legend(["max", "avg", "min"])
+
+    axs[1].plot(gen, max_[:, 1])
+    axs[1].plot(gen, avg[:, 1])
+    axs[1].plot(gen, min_[:, 1])
+    axs[1].set_xlabel("Generation")
+    axs[1].set_ylabel("Connections")
+    axs[0].legend(["max", "avg", "min"])
+    fig.show()
+
 
 def main():
     MAX_GEN = 100
@@ -148,24 +169,7 @@ def main():
     showcase(best_ind, env)
     env.close()
     best_ind.test_range(env)
-
-    # Plot
-    gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
-    fig, axs = plt.subplots(2)
-    axs[0].plot(gen, max_[:, 0])
-    axs[0].plot(gen, avg[:, 0])
-    axs[0].plot(gen, min_[:, 0])
-    axs[0].set_xlabel("Generation")
-    axs[0].set_ylabel("Fitness")
-    axs[0].legend(["max", "avg", "min"])
-
-    axs[1].plot(gen, max_[:, 1])
-    axs[1].plot(gen, avg[:, 1])
-    axs[1].plot(gen, min_[:, 1])
-    axs[1].set_xlabel("Generation")
-    axs[1].set_ylabel("Connections")
-    axs[0].legend(["max", "avg", "min"])
-    fig.show()
+    plot_evo(logbook)
 
 
 if __name__ == "__main__":
