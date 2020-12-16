@@ -11,6 +11,7 @@ from visual import draw_pop, showcase
 from multiprocessing import Pool
 import pickle
 from functions import FUN
+import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=1)
 
@@ -128,7 +129,22 @@ def main():
     best_ind.test_range(env)
 
     # Plot
+    gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
+    fig, axs = plt.subplots(2)
+    axs[0].plot(gen, max_[:, 0])
+    axs[0].plot(gen, avg[:, 0])
+    axs[0].plot(gen, min_[:, 0])
+    axs[0].set_xlabel("Generation")
+    axs[0].set_ylabel("Fitness")
+    axs[0].legend(["max", "avg", "min"])
 
+    axs[1].plot(gen, max_[:, 1])
+    axs[1].plot(gen, avg[:, 1])
+    axs[1].plot(gen, min_[:, 1])
+    axs[1].set_xlabel("Generation")
+    axs[1].set_ylabel("Connections")
+    axs[0].legend(["max", "avg", "min"])
+    fig.show()
 
 
 if __name__ == "__main__":
