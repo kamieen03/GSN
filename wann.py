@@ -12,6 +12,8 @@ from multiprocessing import Pool
 import pickle
 from functions import FUN
 
+np.set_printoptions(precision=1)
+
 
 # Net initialization params
 ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
@@ -51,6 +53,7 @@ def out2action(out, env):
         action = np.argmax(out)
     return out
 
+
 def evaluate(individual):
     total_fit = 0
     max_fit = -np.inf
@@ -83,46 +86,48 @@ toolbox.register("select", tools.selNSGA2)
 
 
 def main():
-    MAX_GEN = 30
+    MAX_GEN = 5
     POP_SIZE = 40
-    SELECT_K = int(POP_SIZE * 0.8)
 
-    stats = tools.Statistics(key=lambda ind: ind.fitness.values[1])
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values[1:])  # skip avg part of the fitness
     stats.register("max", np.max, axis=0)
     stats.register("min", np.min, axis=0)
     stats.register("avg", np.mean, axis=0)
     logbook = tools.Logbook()
-    logbook.header = "gen", "max", "min", "avg"
+    logbook.header = "gen", "max", "avg", "min"
+
+    pool = Pool()
 
     pop = toolbox.population(n=POP_SIZE)
-    for ind in pop:
-        toolbox.evaluate(ind)
+    pop = pool.map(toolbox.evaluate, pop)
 
     record = stats.compile(pop)
     logbook.record(gen=0, evals=POP_SIZE, **record)
-    pool = Pool()
+    print(logbook.stream)
 
     for gen in range(1, MAX_GEN):
-        offspring = toolbox.select(pop, SELECT_K)
-        offspring = [offspring[random.randint(0, len(offspring)-1)] for _ in range(POP_SIZE)]
-        offspring = list(map(toolbox.clone, offspring))
+        offspring = list(map(toolbox.clone, pop))
         offspring = pool.map(toolbox.mutate, offspring)
         offspring = pool.map(toolbox.evaluate, offspring)
+        offspring = toolbox.select(pop + offspring, POP_SIZE)
         pop[:] = offspring
 
-#        draw_pop(pop)
         record = stats.compile(pop)
         logbook.record(gen=gen, evals=POP_SIZE, **record)
         print(logbook.stream)
 
-    best_ind = tools.selBest(pop, 1)[0]
+    best_ind = pop[0]  # already sorted by NSGA2
+    print(f"\nBest individual is {best_ind.fitness.values}")
+
     with open(f'models/best_net_{ENV_NAME}.pickle', 'wb') as f:
         pickle.dump(best_ind, f)
-    print(f"\nBest individual is {best_ind.fitness.values}")
+
     env = gym.make(ENV_NAME)
     showcase(best_ind, env)
     env.close()
     best_ind.test_range(env)
+
+    # Plot
 
 
 
