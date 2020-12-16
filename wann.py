@@ -16,7 +16,7 @@ np.set_printoptions(precision=1)
 
 
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
+ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][0]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -50,7 +50,7 @@ def mutate(individual):
 
 def out2action(out, env):
     if type(env.action_space) == gym.spaces.discrete.Discrete:
-        action = np.argmax(out)
+        return np.argmax(out)
     return out
 
 
@@ -85,11 +85,35 @@ toolbox.register("mutate", mutate)
 toolbox.register("select", tools.selNSGA2)
 
 
-def main():
-    MAX_GEN = 5
-    POP_SIZE = 40
+def choose_best(pop):
+    best_ind = None
+    best_max = -np.inf
+    best_avg = -np.inf
+    for ind in pop:
+        iavg, imax, _ = ind.fitness.values
+        if imax > best_max:
+            best_ind = ind
+            best_max = imax
+        elif imax == best_max and iavg > best_avg:
+            best_ind = ind
+            best_avg = iavg
+    return best_ind
 
-    stats = tools.Statistics(key=lambda ind: ind.fitness.values[1:])  # skip avg part of the fitness
+def serialize(ind):
+    n = Net(NET_IN, NET_OUT, out_fun)
+    n.best_w = ind.best_w
+    n.nodes = ind.nodes
+    n.layers = ind.layers
+    n.inputs = ind.inputs
+    n.outputs = ind.outputs
+    with open(f'models/best_net_{ENV_NAME}.pickle', 'wb') as f:
+        pickle.dump(n, f)
+
+def main():
+    MAX_GEN = 20
+    POP_SIZE = 20
+
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
     stats.register("max", np.max, axis=0)
     stats.register("min", np.min, axis=0)
     stats.register("avg", np.mean, axis=0)
@@ -116,18 +140,15 @@ def main():
         logbook.record(gen=gen, evals=POP_SIZE, **record)
         print(logbook.stream)
 
-    best_ind = pop[0]  # already sorted by NSGA2
+    best_ind = choose_best(pop)
+    serialize(best_ind)
+    for i in range(POP_SIZE):
+        print(pop[i].fitness.values)
     print(f"\nBest individual is {best_ind.fitness.values}")
-
-    with open(f'models/best_net_{ENV_NAME}.pickle', 'wb') as f:
-        pickle.dump(best_ind, f)
-
     env = gym.make(ENV_NAME)
     showcase(best_ind, env)
     env.close()
     best_ind.test_range(env)
-
-    # Plot
 
 
 

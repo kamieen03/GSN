@@ -9,6 +9,7 @@ from visual import showcase
 import pickle
 import sys
 import gym
+from tqdm import tqdm
 
 
 class Net:
@@ -103,7 +104,7 @@ class Net:
     def test_range(self, env):
         print("Testing range of weights...")
         xs, ys = [], []
-        for w in np.arange(-3.0,3.0,0.1):
+        for w in tqdm(np.arange(-3.0,3.0,0.03)):
             total_reward = 0
             observation = env.reset()
             for i in range(1000):
@@ -123,23 +124,24 @@ class Net:
         plt.show()
 
 
-
-if __name__ == '__main__':
-    if sys.argv[1] == 'walker':
-        ENV_NAME = "BipedalWalker-v3"
-    elif sys.argv[1] == "cartpole":
-        ENV_NAME = "CartPole-v1"
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python3 net.py (walker|cartpole|pendulum)")
     else:
-        print("Usage: py net.py (walker|cartpole)")
-    env = gym.make(ENV_NAME)
-    NET_IN = env.observation_space.shape[0]
-    try:
-        NET_OUT = env.action_space.n
-    except:
-        NET_OUT = env.action_space.shape[0]
+        if sys.argv[1] == 'walker':
+            ENV_NAME = "BipedalWalker-v3"
+        elif sys.argv[1] == "cartpole":
+            ENV_NAME = "CartPole-v1"
+        elif sys.argv[1] == "pendulum":
+            ENV_NAME = "Pendulum-v0"
+        else:
+            print("Usage: py net.py (walker|cartpole|pendulum)")
     with open(f"models/best_net_{ENV_NAME}.pickle", "rb") as f:
         n = pickle.load(f)
+    env = gym.make(ENV_NAME)
     showcase(n, env)
     env.close()
 
+if __name__ == '__main__':
+    main()
 
