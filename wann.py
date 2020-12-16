@@ -16,7 +16,7 @@ np.set_printoptions(precision=1)
 
 
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][0]
+ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -91,11 +91,9 @@ def choose_best(pop):
     best_avg = -np.inf
     for ind in pop:
         iavg, imax, _ = ind.fitness.values
-        if imax > best_max:
+        if iavg + imax > best_avg + best_max:
             best_ind = ind
             best_max = imax
-        elif imax == best_max and iavg > best_avg:
-            best_ind = ind
             best_avg = iavg
     return best_ind
 
@@ -110,8 +108,8 @@ def serialize(ind):
         pickle.dump(n, f)
 
 def main():
-    MAX_GEN = 20
-    POP_SIZE = 20
+    MAX_GEN = 100
+    POP_SIZE = 100
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
     stats.register("max", np.max, axis=0)
