@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=1)
 
-
+WS = (1,1,1)
 # Net initialization params
 ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
 env = gym.make(ENV_NAME)
@@ -77,7 +77,7 @@ def evaluate(individual):
     env.close()
     avg_fit = total_fit / len(weights)
     complexity = individual.get_num_connections()
-    individual.fitness.values = (avg_fit, max_fit, complexity)
+    individual.fitness.values = (WS[0]*avg_fit, WS[1]*max_fit, WS[2]*complexity)
     return individual
 
 
@@ -130,10 +130,11 @@ def plot_evo(logbook):
 
 
 def main():
-    MAX_GEN = 100
+    global WS
+    MAX_GEN = 300
     POP_SIZE = 100
 
-    stats = tools.Statistics(key=lambda ind: ind.fitness.values[1:])  # skip avg part of the fitness
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
     stats.register("max", np.max, axis=0)
     stats.register("min", np.min, axis=0)
     stats.register("avg", np.mean, axis=0)
@@ -150,6 +151,9 @@ def main():
     print(logbook.stream)
 
     for gen in range(1, MAX_GEN):
+        WS = (1,1,0)
+        if random.random() < 0.8:
+            WS = (1,0,1)
         offspring = list(map(toolbox.clone, pop))
         offspring = pool.map(toolbox.mutate, offspring)
         offspring = pool.map(toolbox.evaluate, offspring)
@@ -159,6 +163,8 @@ def main():
         record = stats.compile(pop)
         logbook.record(gen=gen, evals=POP_SIZE, **record)
         print(logbook.stream)
+        best_ind = choose_best(pop)
+        serialize(best_ind)
 
     best_ind = choose_best(pop)
     serialize(best_ind)
