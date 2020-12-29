@@ -25,9 +25,9 @@ try:
 except:
     NET_OUT = env.action_space.shape[0]
 env.close(); del env
-out_fun = {'CartPole-v1': FUN['ID'],
-           'BipedalWalker-v3': FUN['TANH'],
-           'Pendulum-v0': FUN['2TANH']
+out_fun = {'CartPole-v1': 'ID',
+           'BipedalWalker-v3': 'TANH',
+           'Pendulum-v0': '2TANH'
            }[ENV_NAME]
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))

@@ -1,9 +1,11 @@
 import numpy as np
+from functions import FUN
 
 
 class Node:
-    def __init__(self, fun, id_):
-        self.fun = fun
+    def __init__(self, fun_name, id_):
+        self.fun_name = fun_name
+        self.fun = FUN[fun_name]
         self.id = id_
         self.children = []
         self.val = None

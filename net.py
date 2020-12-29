@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from functions import FUN, FUN_LIST
+from functions import FUN, FUN_NAMES
 from numpy import array as arr
 import random
 from node import Node
@@ -13,13 +13,13 @@ from tqdm import tqdm
 
 
 class Net:
-    def __init__(self, n_inputs, n_outputs, out_op=FUN['ID']):
+    def __init__(self, n_inputs, n_outputs, out_fun_name='ID'):
         self.curr_node_id = 0
         self.best_w = None
         self.nodes = []
         self.layers = []  # list of lists of nodes
-        self.inputs = [Node(None, self.get_node_id()) for _ in range(n_inputs)]
-        self.outputs = [Node(out_op, self.get_node_id()) for _ in range(n_outputs)]
+        self.inputs = [Node('ID', self.get_node_id()) for _ in range(n_inputs)]
+        self.outputs = [Node(out_fun_name, self.get_node_id()) for _ in range(n_outputs)]
         for o in self.outputs:
             o.children = random.sample(self.inputs, k=2)
 
@@ -36,7 +36,8 @@ class Net:
     def change_activation(self):
         if len(self.nodes) > 0:
             node = random.choice(self.nodes)
-            node.fun = random.choice(FUN_LIST)
+            node.fun_name = random.choice(FUN_NAMES)
+            node.fun = FUN[node.fun_name]
         return self
 
 
@@ -51,7 +52,7 @@ class Net:
 
         # get one of it's children and produce new node between parent and child
         child = random.choice(parent.children)
-        node = Node(random.choice(FUN_LIST), self.get_node_id())
+        node = Node(random.choice(FUN_NAMES), self.get_node_id())
         node.children.append(child)
         parent.children.remove(child)
         parent.children.append(node)
