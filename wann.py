@@ -16,7 +16,11 @@ np.set_printoptions(precision=1)
 
 WS = (1,1,1)
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0', 'LunarLanderContinuous-v2'][3]
+ENV_NAME = ['CartPole-v1',
+            'BipedalWalker-v3',
+            'Pendulum-v0',
+            'MountainCar-v0',
+            'LunarLanderContinuous-v2'][3]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -27,6 +31,7 @@ env.close(); del env
 out_fun = {'CartPole-v1': 'ID',
            'BipedalWalker-v3': 'TANH',
            'Pendulum-v0': '2TANH',
+           'MountainCar-v0': 'ID',
            'LunarLanderContinuous-v2': 'TANH'
            }[ENV_NAME]
 

@@ -128,7 +128,7 @@ class Net:
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 net.py (walker|cartpole|pendulum)")
+        print("Usage: python3 net.py (walker|cartpole|pendulum|lander|gora)")
     else:
         if sys.argv[1] == 'walker':
             ENV_NAME = "BipedalWalker-v3"
@@ -136,10 +136,12 @@ def main():
             ENV_NAME = "CartPole-v1"
         elif sys.argv[1] == "pendulum":
             ENV_NAME = "Pendulum-v0"
+        elif sys.argv[1] == "gora":
+            ENV_NAME = "MountainCar-v0"
         elif sys.argv[1] == "lander":
             ENV_NAME = "LunarLanderContinuous-v2"
         else:
-            print("Usage: py net.py (walker|cartpole|pendulum|lander)")
+            print("Usage: py net.py (walker|cartpole|pendulum|lander|gora)")
     with open(f"models/best_net_{ENV_NAME}.pickle", "rb") as f:
         n = pickle.load(f)
     env = gym.make(ENV_NAME)
