@@ -17,7 +17,7 @@ np.set_printoptions(precision=1)
 
 WS = (1,1,1)
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0'][2]
+ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0', 'MountainCar-v0'][3]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -27,7 +27,8 @@ except:
 env.close(); del env
 out_fun = {'CartPole-v1': 'ID',
            'BipedalWalker-v3': 'TANH',
-           'Pendulum-v0': '2TANH'
+           'Pendulum-v0': '2TANH',
+           'MountainCar-v0': 'ID'
            }[ENV_NAME]
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
@@ -131,7 +132,7 @@ def plot_evo(logbook):
 
 def main():
     global WS
-    MAX_GEN = 300
+    MAX_GEN = 250
     POP_SIZE = 100
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
