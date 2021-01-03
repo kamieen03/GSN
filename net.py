@@ -40,7 +40,6 @@ class Net:
             node.fun = FUN[node.fun_name]
         return self
 
-
     def insert_node(self):
         # get random node in network and number of it's layer
         weights = [len(layer) for layer in self.layers] + [len(self.outputs)]
@@ -119,15 +118,17 @@ class Net:
                     break
             xs.append(w)
             ys.append(total_reward)
-        plt.plot(xs,ys)
+        plt.plot(xs, ys)
         plt.xlabel("Weight")
         plt.ylabel("Score")
+        plt.title("Weight tuning")
+        plt.savefig(f"plots/weights_{env.unwrapped.spec.id}.jpg")
         plt.show()
 
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 net.py (walker|cartpole|pendulum|gora)")
+        print("Usage: python3 net.py (walker|cartpole|pendulum|lander|gora)")
     else:
         if sys.argv[1] == 'walker':
             ENV_NAME = "BipedalWalker-v3"
@@ -137,8 +138,10 @@ def main():
             ENV_NAME = "Pendulum-v0"
         elif sys.argv[1] == "gora":
             ENV_NAME = "MountainCar-v0"
+        elif sys.argv[1] == "lander":
+            ENV_NAME = "LunarLanderContinuous-v2"
         else:
-            print("Usage: py net.py (walker|cartpole|pendulum|gora)")
+            print("Usage: py net.py (walker|cartpole|pendulum|lander|gora)")
     with open(f"models/best_net_{ENV_NAME}.pickle", "rb") as f:
         n = pickle.load(f)
     env = gym.make(ENV_NAME)

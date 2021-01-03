@@ -10,14 +10,17 @@ from deap import tools
 from visual import draw_pop, showcase
 from multiprocessing import Pool
 import pickle
-from functions import FUN
 import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=1)
 
 WS = (1,1,1)
 # Net initialization params
-ENV_NAME = ['CartPole-v1', 'BipedalWalker-v3', 'Pendulum-v0', 'MountainCar-v0'][3]
+ENV_NAME = ['CartPole-v1',
+            'BipedalWalker-v3',
+            'Pendulum-v0',
+            'MountainCar-v0',
+            'LunarLanderContinuous-v2'][3]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -28,7 +31,8 @@ env.close(); del env
 out_fun = {'CartPole-v1': 'ID',
            'BipedalWalker-v3': 'TANH',
            'Pendulum-v0': '2TANH',
-           'MountainCar-v0': 'ID'
+           'MountainCar-v0': 'ID',
+           'LunarLanderContinuous-v2': 'TANH'
            }[ENV_NAME]
 
 creator.create("Fitness", base.Fitness, weights=(1.0, 1.0, -1.0))
@@ -113,20 +117,28 @@ def serialize(ind):
 
 def plot_evo(logbook):
     gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
-    fig, axs = plt.subplots(2)
+    fig, axs = plt.subplots(3)
+    fig.suptitle("Evolution")
+
     axs[0].plot(gen, max_[:, 0])
     axs[0].plot(gen, avg[:, 0])
     axs[0].plot(gen, min_[:, 0])
-    axs[0].set_xlabel("Generation")
-    axs[0].set_ylabel("Fitness")
+    axs[0].set_ylabel("Avg fitness")
     axs[0].legend(["max", "avg", "min"])
 
     axs[1].plot(gen, max_[:, 1])
     axs[1].plot(gen, avg[:, 1])
     axs[1].plot(gen, min_[:, 1])
-    axs[1].set_xlabel("Generation")
-    axs[1].set_ylabel("Connections")
-    axs[0].legend(["max", "avg", "min"])
+    axs[1].set_ylabel("Max fitness")
+    axs[1].legend(["max", "avg", "min"])
+
+    axs[2].plot(gen, max_[:, 2])
+    axs[2].plot(gen, avg[:, 2])
+    axs[2].plot(gen, min_[:, 2])
+    axs[2].set_xlabel("Generation")
+    axs[2].set_ylabel("Connections")
+    axs[2].legend(["max", "avg", "min"])
+    fig.savefig(f"plots/evo_{ENV_NAME}.jpg")
     fig.show()
 
 
@@ -163,6 +175,8 @@ def main():
 
         record = stats.compile(pop)
         logbook.record(gen=gen, evals=POP_SIZE, **record)
+        with open(f"log/logbook_{ENV_NAME}.pkl", 'wb') as f:
+            pickle.dump(logbook, f)
         print(logbook.stream)
         best_ind = choose_best(pop)
         serialize(best_ind)
