@@ -7,7 +7,7 @@ from mutations import Mutation
 from deap import base
 from deap import creator
 from deap import tools
-from visual import draw_pop, showcase
+from visual import draw_pop, showcase, save_frames_as_gif
 from multiprocessing import Pool
 import pickle
 import matplotlib.pyplot as plt
@@ -181,10 +181,10 @@ def main():
         if best_score >= all_time_best_score:
             all_time_best_score = best_score
             all_time_best_ind = best_ind
-        env = gym.make(ENV_NAME)
-        print(all_time_best_ind.fitness)
-        showcase(all_time_best_ind, env)
-        env.close()
+#        env = gym.make(ENV_NAME)
+#        print(all_time_best_ind.fitness)
+#        showcase(all_time_best_ind, env)
+#        env.close()
         serialize(best_ind)
 
     best_ind = choose_best(pop)
@@ -193,7 +193,8 @@ def main():
         print(pop[i].fitness.values)
     print(f"\nBest individual is {best_ind.fitness.values}")
     env = gym.make(ENV_NAME)
-    showcase(best_ind, env)
+    frames = showcase(best_ind, env)
+    save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
     env.close()
     best_ind.test_range(env)
     plot_evo(logbook)
