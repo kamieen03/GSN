@@ -14,13 +14,12 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=1)
 
-WS = (1,1,1)
 # Net initialization params
 ENV_NAME = ['CartPole-v1',
             'BipedalWalker-v3',
             'Pendulum-v0',
             'MountainCar-v0',
-            'LunarLanderContinuous-v2'][3]
+            'LunarLanderContinuous-v2'][4]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -67,13 +66,15 @@ def evaluate(individual):
     weights=[-2, -1, -0.5, 0.5, 1, 2]
     for w in weights:
         total_reward = 0
-        observation = env.reset()
-        for i in range(1000):
-            action = out2action(individual(w, observation), env)
-            observation, reward, done, info = env.step(action)
-            total_reward += reward
-            if done:
-                break
+        for _ in range(5):
+            observation = env.reset()
+            for i in range(1000):
+                action = out2action(individual(w, observation), env)
+                observation, reward, done, info = env.step(action)
+                total_reward += reward
+                if done:
+                    break
+        total_reward /=5
 
         if total_reward > max_fit:
             max_fit = total_reward
@@ -82,7 +83,7 @@ def evaluate(individual):
     env.close()
     avg_fit = total_fit / len(weights)
     complexity = individual.get_num_connections()
-    individual.fitness.values = (WS[0]*avg_fit, WS[1]*max_fit, WS[2]*complexity)
+    individual.fitness.values = avg_fit, max_fit, complexity
     return individual
 
 
@@ -101,7 +102,7 @@ def choose_best(pop):
             best_ind = ind
             best_max = imax
             best_avg = iavg
-    return best_ind
+    return best_ind, best_avg+best_max
 
 
 def serialize(ind):
@@ -143,9 +144,10 @@ def plot_evo(logbook):
 
 
 def main():
-    global WS
     MAX_GEN = 250
-    POP_SIZE = 100
+    POP_SIZE = 20
+    all_time_best_ind = None
+    all_time_best_score = -np.inf
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
     stats.register("max", np.max, axis=0)
@@ -164,9 +166,6 @@ def main():
     print(logbook.stream)
 
     for gen in range(1, MAX_GEN):
-        WS = (1,1,0)
-        if random.random() < 0.8:
-            WS = (1,0,1)
         offspring = list(map(toolbox.clone, pop))
         offspring = pool.map(toolbox.mutate, offspring)
         offspring = pool.map(toolbox.evaluate, offspring)
@@ -178,7 +177,14 @@ def main():
         with open(f"log/logbook_{ENV_NAME}.pkl", 'wb') as f:
             pickle.dump(logbook, f)
         print(logbook.stream)
-        best_ind = choose_best(pop)
+        best_ind, best_score = choose_best(pop)
+        if best_score >= all_time_best_score:
+            all_time_best_score = best_score
+            all_time_best_ind = best_ind
+        env = gym.make(ENV_NAME)
+        print(all_time_best_ind.fitness)
+        showcase(all_time_best_ind, env)
+        env.close()
         serialize(best_ind)
 
     best_ind = choose_best(pop)

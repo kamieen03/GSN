@@ -28,6 +28,7 @@ def convert2nx(net):
 
 def showcase(net, env):
     observation = env.reset()
+    total_reward = 0
     for _ in range(1000):
         env.render()
         if type(env.action_space) == gym.spaces.discrete.Discrete:
@@ -35,5 +36,7 @@ def showcase(net, env):
         else:
             action = net(net.best_w, observation)
         observation, reward, done, info = env.step(action)
+        total_reward += reward
         if done: break
     env.close()
+    print(total_reward)
