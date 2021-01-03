@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import gym
+from matplotlib import animation
+
 
 def draw_pop(nets):
     rows = 4
@@ -28,8 +30,9 @@ def convert2nx(net):
 
 def showcase(net, env):
     observation = env.reset()
+    frames = []
     for _ in range(1000):
-        env.render()
+        frames.append(env.render(mode="rgb_array"))
         if type(env.action_space) == gym.spaces.discrete.Discrete:
             action = np.argmax(net(net.best_w, observation))
         else:
@@ -37,3 +40,23 @@ def showcase(net, env):
         observation, reward, done, info = env.step(action)
         if done: break
     env.close()
+    return frames
+
+
+# Ensure you have imagemagick installed with
+# sudo apt-get install imagemagick
+def save_frames_as_gif(frames, path):
+
+    plt.figure(figsize=(frames[0].shape[1] / 72.0, frames[0].shape[0] / 72.0), dpi=72)
+
+    patch = plt.imshow(frames[0])
+    plt.axis('off')
+
+    def animate(i):
+        patch.set_data(frames[i])
+
+    anim = animation.FuncAnimation(plt.gcf(), animate, frames = len(frames), interval=50)
+    anim.save(path, writer='imagemagick', fps=60)
+
+
+

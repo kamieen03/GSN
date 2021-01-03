@@ -7,7 +7,7 @@ from mutations import Mutation
 from deap import base
 from deap import creator
 from deap import tools
-from visual import draw_pop, showcase
+from visual import draw_pop, showcase, save_frames_as_gif
 from multiprocessing import Pool
 import pickle
 import matplotlib.pyplot as plt
@@ -139,7 +139,7 @@ def plot_evo(logbook):
 
 def main():
     global WS
-    MAX_GEN = 250
+    MAX_GEN = 2
     POP_SIZE = 100
 
     stats = tools.Statistics(key=lambda ind: ind.fitness.values)  # skip avg part of the fitness
@@ -182,7 +182,8 @@ def main():
         print(pop[i].fitness.values)
     print(f"\nBest individual is {best_ind.fitness.values}")
     env = gym.make(ENV_NAME)
-    showcase(best_ind, env)
+    frames = showcase(best_ind, env)
+    save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
     env.close()
     best_ind.test_range(env)
     plot_evo(logbook)
