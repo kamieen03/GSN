@@ -9,6 +9,7 @@ from deap import creator
 from deap import tools
 from visual import showcase, save_frames_as_gif, plot_evo
 from multiprocessing import Pool
+from visual import draw_net
 import pickle
 import matplotlib.pyplot as plt
 
@@ -155,10 +156,6 @@ def main():
         if best_score >= all_time_best_score:
             all_time_best_score = best_score
             all_time_best_ind = best_ind
-#        env = gym.make(ENV_NAME)
-#        print(all_time_best_ind.fitness)
-#        showcase(all_time_best_ind, env)
-#        env.close()
         serialize(all_time_best_ind)
 
     for i in range(POP_SIZE):
@@ -170,6 +167,7 @@ def main():
     env.close()
     all_time_best_ind.test_range(env)
     plot_evo(logbook, ENV_NAME)
+    draw_net(all_time_best_ind, ENV_NAME, f"plots/net_{ENV_NAME}.jpg")
 
 
 if __name__ == "__main__":
