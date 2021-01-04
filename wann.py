@@ -7,7 +7,7 @@ from mutations import Mutation
 from deap import base
 from deap import creator
 from deap import tools
-from visual import draw_pop, showcase, save_frames_as_gif
+from visual import showcase, save_frames_as_gif
 from multiprocessing import Pool
 import pickle
 import matplotlib.pyplot as plt

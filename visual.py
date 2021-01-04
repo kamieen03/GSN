@@ -6,20 +6,37 @@ import gym
 from matplotlib import animation
 
 
-def draw_pop(nets):
-    rows = 4
-    cols = math.ceil(len(nets) / 4)
-    graphs = [convert2nx(net) for net in nets]
-    for idx, g in enumerate(graphs):
-        plt.subplot(rows, cols, idx+1)
-        nx.draw(g)
-
-    plt.tight_layout()
+def draw_net(net, env_name):
+    G = convert2nx(net, env_name)
+    color = [data["color"] for v, data in G.nodes(data=True)]
+    label = {v: data["label"] for v, data in G.nodes(data=True)}
+    pos = nx.multipartite_layout(G, subset_key="layer")
+    nx.draw(G, pos, with_labels=False, node_color=color)
+    for p in pos:  # raise text positions
+        pos[p][1] += 0.09
+    nx.draw_networkx_labels(G, pos, labels=label)
     plt.show()
 
 
-def convert2nx(net):
+def convert2nx(net, env_name):
     g = nx.DiGraph()
+    layers = [net.inputs, *net.layers, net.outputs]
+
+    for i in range(len(layers)):
+        for j, node in enumerate(layers[i]):
+            if i == 0:
+                label = OBSERVATIONS[env_name][j]
+            elif i == len(layers)-1:
+                label = ACTIONS[env_name][j]
+            else:
+                label = node.fun_name
+
+            props = {
+                "color": FUN2COL[node.fun_name],
+                "label": label,
+                "layer": i
+            }
+            g.add_nodes_from([(node.id, props)])
 
     for node in net.get_all_nodes():
         for child in node.children:
@@ -62,3 +79,30 @@ def save_frames_as_gif(frames, path):
     anim.save(path, writer='imagemagick', fps=60)
 
 
+FUN2COL = {
+    'ID'      : "gray",
+    'SIN'     : "gold",
+    'COS'     : "violet",
+    'ABS'     : "darkgreen",
+    'TANH'    : "darkorange",
+    'RELU'    : "cyan",
+    'GAUSS'   : "lime",
+    'SIGMOID' : "royalblue",
+    '2TANH'   : "darkmagenta"
+}
+
+
+OBSERVATIONS = {
+    "MountainCar-v0": [
+        "Position",
+        "Velocity"
+    ]
+}
+
+ACTIONS = {
+    "MountainCar-v0": [
+        "Acc left",
+        "No acc",
+        "Acc right"
+    ]
+}
