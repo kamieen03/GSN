@@ -77,6 +77,7 @@ def save_frames_as_gif(frames, path):
 
     anim = animation.FuncAnimation(plt.gcf(), animate, frames = len(frames), interval=50)
     anim.save(path, writer='imagemagick', fps=60)
+    plt.close()
 
 
 FUN2COL = {
