@@ -144,7 +144,7 @@ def plot_evo(logbook):
 
 
 def main():
-    MAX_GEN = 250
+    MAX_GEN = 10
     POP_SIZE = 20
     all_time_best_ind = None
     all_time_best_score = -np.inf
@@ -185,18 +185,16 @@ def main():
 #        print(all_time_best_ind.fitness)
 #        showcase(all_time_best_ind, env)
 #        env.close()
-        serialize(best_ind)
+        serialize(all_time_best_ind)
 
-    best_ind = choose_best(pop)
-    serialize(best_ind)
     for i in range(POP_SIZE):
         print(pop[i].fitness.values)
-    print(f"\nBest individual is {best_ind.fitness.values}")
+    print(f"\nBest individual is {all_time_best_ind.fitness.values}")
     env = gym.make(ENV_NAME)
-    frames = showcase(best_ind, env)
+    frames = showcase(all_time_best_ind, env)
     save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
     env.close()
-    best_ind.test_range(env)
+    all_time_best_ind.test_range(env)
     plot_evo(logbook)
 
 
