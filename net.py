@@ -5,7 +5,7 @@ import random
 from node import Node
 import numpy as np
 from matplotlib import pyplot as plt
-from visual import showcase
+from visual import showcase, draw_net
 import pickle
 import sys
 import gym
@@ -104,7 +104,7 @@ class Net:
     def test_range(self, env):
         print("Testing range of weights...")
         xs, ys = [], []
-        for w in tqdm(np.arange(-3.0,3.0,0.03)):
+        for w in tqdm(0.01 * np.arange(-300, 302, 2)):
             total_reward = 0
             observation = env.reset()
             for i in range(1000):
