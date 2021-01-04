@@ -6,6 +6,7 @@ import pygraphviz as pgv
 
 
 def draw_net(net, env_name, path):
+    print('Drawing graph ...')
     G = pgv.AGraph(strict=False, directed=True, rankdir="LR")
 
     # Add nodes
@@ -107,7 +108,7 @@ FUN2COL = {
     'RELU': "cyan",
     'GAUSS': "lime",
     'SIGMOID': "royalblue",
-    '2TANH': "darkmagenta"
+    '2TANH': "magenta4"
 }
 
 OBSERVATIONS = {
@@ -170,9 +171,8 @@ ACTIONS = {
         "Acc right"
     ],
     "LunarLanderContinuous-v2": [
-        "Left Engine",
-        "Off",
-        "Right Engine"
+        "Main Engine",
+        "Left/Right Engine"
     ],
     "BipedalWalker-v3": [
         "Hip_1",

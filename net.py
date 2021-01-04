@@ -5,7 +5,7 @@ import random
 from node import Node
 import numpy as np
 from matplotlib import pyplot as plt
-from visual import showcase, plot_evo, save_frames_as_gif
+from visual import showcase, plot_evo, save_frames_as_gif, draw_net
 import pickle
 import sys
 import gym
@@ -153,6 +153,10 @@ def main():
     save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
     n.test_range(env)
     plot_evo(logbook, ENV_NAME)
+    print(f'Weight used in {ENV_NAME}: {n.best_w}')
+    with open('used_weights.txt', 'a') as f:
+        f.write(f'Weight used in {ENV_NAME}: {n.best_w}')
+    draw_net(n, ENV_NAME, f'renders/net_image_{ENV_NAME}.png')
     env.close()
 
 

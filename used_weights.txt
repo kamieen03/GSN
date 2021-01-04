@@ -1,0 +1,3 @@
+Weight used in MountainCar-v0: -2
+Weight used in LunarLanderContinuous-v2: -2
+Weight used in LunarLanderContinuous-v2: -2
