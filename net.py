@@ -5,7 +5,7 @@ import random
 from node import Node
 import numpy as np
 from matplotlib import pyplot as plt
-from visual import showcase
+from visual import showcase, plot_evo, save_frames_as_gif
 import pickle
 import sys
 import gym
@@ -142,11 +142,20 @@ def main():
             ENV_NAME = "LunarLanderContinuous-v2"
         else:
             print("Usage: py net.py (walker|cartpole|pendulum|lander|gora)")
+
     with open(f"models/best_net_{ENV_NAME}.pickle", "rb") as f:
         n = pickle.load(f)
+    with open(f"log/logbook_{ENV_NAME}.pkl", 'rb') as f:
+        logbook = pickle.load(f)
+
     env = gym.make(ENV_NAME)
-    showcase(n, env)
+    frames = showcase(n, env)
+    save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
+    n.test_range(env)
+    plot_evo(logbook, ENV_NAME)
     env.close()
+
+
 
 if __name__ == '__main__':
     main()

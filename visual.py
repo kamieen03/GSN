@@ -62,6 +62,34 @@ def showcase(net, env):
     print(total_reward)
     return frames
 
+def plot_evo(logbook, env_name):
+    gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
+    fig, axs = plt.subplots(3)
+    fig.suptitle("Evolution")
+
+    axs[0].plot(gen, max_[:, 0])
+    axs[0].plot(gen, avg[:, 0])
+    axs[0].plot(gen, min_[:, 0])
+    axs[0].set_ylabel("Avg fitness")
+    axs[0].legend(["max", "avg", "min"])
+
+    axs[1].plot(gen, max_[:, 1])
+    axs[1].plot(gen, avg[:, 1])
+    axs[1].plot(gen, min_[:, 1])
+    axs[1].set_ylabel("Max fitness")
+    axs[1].legend(["max", "avg", "min"])
+
+    axs[2].plot(gen, max_[:, 2])
+    axs[2].plot(gen, avg[:, 2])
+    axs[2].plot(gen, min_[:, 2])
+    axs[2].set_xlabel("Generation")
+    axs[2].set_ylabel("Connections")
+    axs[2].legend(["max", "avg", "min"])
+    fig.savefig(f"plots/evo_{env_name}.jpg")
+    fig.show()
+
+
+
 
 # Ensure you have imagemagick installed with
 # sudo apt-get install imagemagick

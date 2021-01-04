@@ -7,7 +7,7 @@ from mutations import Mutation
 from deap import base
 from deap import creator
 from deap import tools
-from visual import showcase, save_frames_as_gif
+from visual import showcase, save_frames_as_gif, plot_evo
 from multiprocessing import Pool
 import pickle
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ ENV_NAME = ['CartPole-v1',
             'BipedalWalker-v3',
             'Pendulum-v0',
             'MountainCar-v0',
-            'LunarLanderContinuous-v2'][4]
+            'LunarLanderContinuous-v2'][3]
 env = gym.make(ENV_NAME)
 NET_IN = env.observation_space.shape[0]
 try:
@@ -116,35 +116,9 @@ def serialize(ind):
         pickle.dump(n, f)
 
 
-def plot_evo(logbook):
-    gen, max_, avg, min_ = [np.array(arr) for arr in logbook.select("gen", "max", "avg", "min")]
-    fig, axs = plt.subplots(3)
-    fig.suptitle("Evolution")
-
-    axs[0].plot(gen, max_[:, 0])
-    axs[0].plot(gen, avg[:, 0])
-    axs[0].plot(gen, min_[:, 0])
-    axs[0].set_ylabel("Avg fitness")
-    axs[0].legend(["max", "avg", "min"])
-
-    axs[1].plot(gen, max_[:, 1])
-    axs[1].plot(gen, avg[:, 1])
-    axs[1].plot(gen, min_[:, 1])
-    axs[1].set_ylabel("Max fitness")
-    axs[1].legend(["max", "avg", "min"])
-
-    axs[2].plot(gen, max_[:, 2])
-    axs[2].plot(gen, avg[:, 2])
-    axs[2].plot(gen, min_[:, 2])
-    axs[2].set_xlabel("Generation")
-    axs[2].set_ylabel("Connections")
-    axs[2].legend(["max", "avg", "min"])
-    fig.savefig(f"plots/evo_{ENV_NAME}.jpg")
-    fig.show()
-
 
 def main():
-    MAX_GEN = 10
+    MAX_GEN = 250
     POP_SIZE = 20
     all_time_best_ind = None
     all_time_best_score = -np.inf
@@ -195,7 +169,7 @@ def main():
     save_frames_as_gif(frames, f"renders/render_{ENV_NAME}.gif")
     env.close()
     all_time_best_ind.test_range(env)
-    plot_evo(logbook)
+    plot_evo(logbook, ENV_NAME)
 
 
 if __name__ == "__main__":
