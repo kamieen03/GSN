@@ -47,6 +47,7 @@ def convert2nx(net, env_name):
 
 def showcase(net, env):
     observation = env.reset()
+    total_reward = 0
     frames = []
     for _ in range(1000):
         frames.append(env.render(mode="rgb_array"))
@@ -55,8 +56,10 @@ def showcase(net, env):
         else:
             action = net(net.best_w, observation)
         observation, reward, done, info = env.step(action)
+        total_reward += reward
         if done: break
     env.close()
+    print(total_reward)
     return frames
 
 
