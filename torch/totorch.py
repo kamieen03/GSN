@@ -1,7 +1,9 @@
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(__file__))+'/../')
+
 import torch
 from functions import TORCH_FUN
 import pickle
-
 
 class TorchNode(torch.nn.Module):
     def __init__(self, weight, node):
@@ -16,7 +18,7 @@ class TorchNode(torch.nn.Module):
         return self.fun(inp)
 
 class TorchNet(torch.nn.Module):
-    def __init__(self, net):
+    def __init__(self):
         super(TorchNet, self).__init__()
         self.layers = []
         self.fromnet(net)
