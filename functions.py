@@ -33,18 +33,21 @@ FUN_NAMES = list(FUN.keys())
 
 
 def torchtanh2(x):
-    return 2 * F.tanh(x)
+    return 2 * torch.tanh(x)
 
 def tgauss(x):
     arg = -(x**2)/2
-    return torch.exp(arg) / torch.sqrt(2*np.pi)
+    return torch.exp(arg) / np.sqrt(2*np.pi)
+
+def tabs(x):
+    return x.abs()
 
 TORCH_FUN = {
     'ID'      : nn.Identity(),
     'SIN'     : torch.sin,
     'COS'     : torch.cos,
-    'ABS'     : nn.LeakyReLU(-1.0),
-    'TANH'    : F.tanh,
+    'ABS'     : tabs,
+    'TANH'    : torch.tanh,
     'RELU'    : F.relu,
     'GAUSS'   : tgauss,
     'SIGMOID' : nn.Sigmoid(),

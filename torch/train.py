@@ -10,7 +10,7 @@ from memory import ReplayMemory
 import sys
 from copy import deepcopy
 import pickle
-from totorch import TorchNode
+from totorch import TorchNet
 
 def t(s):
     return torch.from_numpy(s).float()
@@ -32,7 +32,7 @@ class Trainer:
         env_name = "BipedalWalker-v3"
         self.env = gym.make(env_name)
         self.GAMMA = 0.99
-        self.EPISODES = 100
+        self.EPISODES = 300
         self.UPDATES_PER_EPISODE = 100
         self.max_grad_norm = 0.3
         self.memory = ReplayMemory()
@@ -40,7 +40,7 @@ class Trainer:
 
         with open(f"../models/best_net_{env_name}.pickle", "rb") as f:
             _n = pickle.load(f)
-        self.actor = TorchNet(_n)
+        self.actor = TorchNet().fromnet(_n)
         self.actor_target = deepcopy(self.actor)
         self.critic = Critic(self.env.observation_space.shape[0], self.env.action_space.shape[0])
         self.critic_target = Critic(self.env.observation_space.shape[0], self.env.action_space.shape[0])
@@ -63,9 +63,9 @@ class Trainer:
         for ep in range(self.EPISODES):
             self.play_episode(ep)
             self.update_params()
-            if ep % 100 == 0:
-                torch.save(self.actor.state_dict(), 'actor_walker.pth')
-                torch.save(self.critic.state_dict(), 'critic_walker.pth')
+            if ep % 20 == 0:
+                torch.save(self.actor, 'actor_walker.pth')
+                torch.save(self.critic, 'critic_walker.pth')
 
 
 
