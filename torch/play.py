@@ -11,8 +11,8 @@ def t(s):
 
 class Player:
     def __init__(self):
-        self.env = gym.make("BipedalWalker-v3")
-        self.actor = torch.load('actor_walker.pth', map_location=torch.device('cpu'))
+        self.env = gym.make("LunarLanderContinuous-v2")
+        self.actor = torch.load('actor_lunar.pth', map_location=torch.device('cpu'))
         self.actor.eval()
 
     def play(self):

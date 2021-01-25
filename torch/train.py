@@ -29,7 +29,7 @@ def soft_update(source, target, tau):
 
 class Trainer:
     def __init__(self):
-        env_name = "BipedalWalker-v3"
+        env_name = "LunarLanderContinuous-v2"
         self.env = gym.make(env_name)
         self.GAMMA = 0.99
         self.EPISODES = 300
@@ -45,8 +45,8 @@ class Trainer:
         self.critic = Critic(self.env.observation_space.shape[0], self.env.action_space.shape[0])
         self.critic_target = Critic(self.env.observation_space.shape[0], self.env.action_space.shape[0])
         try:
-            self.actor.load_state_dict(torch.load('actor_walker.pth'))
-            self.critic.load_state_dict(torch.load('critic_walker.pth'))
+            self.actor.load_state_dict(torch.load('actor_lunar.pth'))
+            self.critic.load_state_dict(torch.load('critic_lunar.pth'))
         except:
             print("Starting with new weights")
         self.actor_target.load_state_dict(self.actor.state_dict())
@@ -64,8 +64,8 @@ class Trainer:
             self.play_episode(ep)
             self.update_params()
             if ep % 20 == 0:
-                torch.save(self.actor, 'actor_walker.pth')
-                torch.save(self.critic, 'critic_walker.pth')
+                torch.save(self.actor, 'actor_lunar.pth')
+                torch.save(self.critic, 'critic_lunar.pth')
 
 
 
@@ -74,7 +74,8 @@ class Trainer:
         s = t(self.env.reset()).cuda()
         rand = torch.distributions.Normal(0, std_from_ep(ep))
         while True:
-            a = self.actor(s).detach() + rand.sample([4]).cuda()
+            # print(rand.sample([2]).cuda())
+            a = self.actor(s).detach() + rand.sample([2]).cuda()
             new_s, rew, done, _= self.env.step(a.cpu().numpy())
             new_s = t(new_s)
             done = 1 * done
