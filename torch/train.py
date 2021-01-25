@@ -38,7 +38,7 @@ class Trainer:
         self.memory = ReplayMemory()
         self.tau = 0.995
 
-        with open(f"../models/best_net_{env_name}.pickle", "rb") as f:
+        with open(f"../models/best_net_{env_name}_added_connections.pickle", "rb") as f:
             _n = pickle.load(f)
         self.actor = TorchNet().fromnet(_n)
         self.actor_target = deepcopy(self.actor)
