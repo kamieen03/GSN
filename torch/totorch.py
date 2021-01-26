@@ -7,9 +7,12 @@ import pickle
 import numpy as np
 
 class TorchNode(torch.nn.Module):
-    def __init__(self, weight, node):
+    def __init__(self, weight, node, out_weights=None):
         super(TorchNode, self).__init__()
-        self.params = torch.nn.Parameter(weight * torch.ones(len(node.children)))
+        if out_weights is None:
+            self.params = torch.nn.Parameter(weight * torch.ones(len(node.children)))
+        else:
+            self.params = torch.nn.Parameter(torch.tensor(out_weights))
         self.fun = TORCH_FUN[node.fun_name]
         self.children_ids = [child.id for child in node.children]
         self.id = node.id
@@ -48,13 +51,20 @@ class TorchNet(torch.nn.Module):
         for l in net.layers:
             self.layers.append([])
             for node in l:
-                node = TorchNode(net.best_w, node)
-                self.layers[-1].append(node)
-                self.mods.append(node)
+                n = TorchNode(net.best_w, node)
+                self.layers[-1].append(n)
+                self.mods.append(n)
 
         self.layers.append([])
-        for node in net.outputs:
-            node = TorchNode(net.best_w, node)
+        try:
+            with open('out_weights.txt', 'r') as f:
+                out_weights = []
+                for line in f.readlines():
+                    out_weights.append([float(x) for x in line.strip().split(',')])
+        except:
+            out_weights = [None for _ in range(len(net.outputs))]
+        for node, ow in zip(net.outputs, out_weights):
+            node = TorchNode(net.best_w, node, ow)
             self.layers[-1].append(node)
             self.mods.append(node)
         return self

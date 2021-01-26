@@ -19,7 +19,7 @@ def clip_grads(module, max_grad_norm):
     torch.nn.utils.clip_grad_norm_([p for g in module.param_groups for p in g["params"]], max_grad_norm)
 
 def std_from_ep(ep):
-    return 0.1
+    return 0.05
     #return max(1-ep/10000, 0.01) * np.cos(ep*2*np.pi/200)**2 + 0.01
 
 def soft_update(source, target, tau):
@@ -34,9 +34,9 @@ class Trainer:
         self.GAMMA = 0.99
         self.EPISODES = 300
         self.UPDATES_PER_EPISODE = 100
-        self.max_grad_norm = 0.3
+        self.max_grad_norm = 20
         self.memory = ReplayMemory()
-        self.tau = 0.995
+        self.tau = 0.99
 
         with open(f"../models/best_net_{env_name}_added_connections.pickle", "rb") as f:
             _n = pickle.load(f)
@@ -56,13 +56,13 @@ class Trainer:
         self.critic = self.critic.cuda()
         self.critic_target = self.critic_target.cuda()
 
-        self.optim_actor = torch.optim.SGD(self.actor.parameters(), lr=1e-3, momentum=0.9)
-        self.optim_critic = torch.optim.SGD(self.critic.parameters(), lr=1e-3, momentum=0.9)
+        self.optim_actor = torch.optim.SGD(self.actor.parameters(), lr=1e-4, momentum=0.9)
+        self.optim_critic = torch.optim.SGD(self.critic.parameters(), lr=1e-4, momentum=0.9)
 
     def train(self):
         for ep in range(self.EPISODES):
             self.play_episode(ep)
-            self.update_params()
+            self.update_params(ep)
             if ep % 20 == 0:
                 torch.save(self.actor, 'actor_walker.pth')
                 torch.save(self.critic, 'critic_walker.pth')
@@ -85,7 +85,7 @@ class Trainer:
                 break
         print("{}: {}".format(ep, total))
 
-    def update_params(self):
+    def update_params(self, epoch):
         for _ in range(self.UPDATES_PER_EPISODE):
             batch = self.memory.sample()
             if batch is None:
@@ -102,13 +102,14 @@ class Trainer:
             clip_grads(self.optim_critic, self.max_grad_norm)
             self.optim_critic.step()
 
-            self.optim_actor.zero_grad()
-            actor_loss = -self.critic(s, self.actor(s)).mean()
-            actor_loss.backward()
-            clip_grads(self.optim_actor, self.max_grad_norm)
-            self.optim_actor.step()
+            if epoch > 30:
+                self.optim_actor.zero_grad()
+                actor_loss = -self.critic(s, self.actor(s)).mean()
+                actor_loss.backward()
+                clip_grads(self.optim_actor, self.max_grad_norm)
+                self.optim_actor.step()
 
-            soft_update(self.actor, self.actor_target, self.tau)
+                soft_update(self.actor, self.actor_target, self.tau)
             soft_update(self.critic, self.critic_target, self.tau)
 
 
