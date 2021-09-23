@@ -8,12 +8,14 @@ their role is adding new nodes and connections and modifying them. We benchmark 
 
 For each environment 4 results are shown:
 * Graph of the final network. The first layer is input - state of environment. The last output layer contains agent's controls.
-* Plots of evolution. Agent (network) during optimization is evaluated on three criteria:
-  - average fitness - how well given architecture performs across couple of different values of weights
-  - max fitness - fitness on the best weight
-  - number of connections
-  The first two are maximized, the last one minimized. Plots show the evolution of these criteria for the best network (blue),
-  the worst network (green) and average across all networks in population (orange).
+* Plots of evolution. Agent (network) during optimization is evaluated on three criteria. The first two are maximized,
+  the last one minimized. Plots show the evolution of these criteria for the best network (blue),
+  the worst network (green) and average across all networks in population (orange). Criteria are:
+  - average fitness - how well given architecture performs across couple of different values of weights
+  - max fitness - fitness on the best weight
+  - number of connections
+ 
+
 * Fitness of the final selected architecture across many values of weights. The best networks are invariant to change of weight
   (like in CartPole case); their behavior is determined only by architecture and irrelevant of weights.
 * GIF showing behavior of the final selected network with weights set to best value maximizing fitness.
